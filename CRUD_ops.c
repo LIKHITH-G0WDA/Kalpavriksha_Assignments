@@ -71,14 +71,7 @@ void update_user()
     printf("Enter User ID to update: ");
     scanf("%d", &target);
 
-    FILE *temp = fopen("tempfile.txt", "w");
-    if(temp==NULL)
-    {
-        printf("can't open temp file");
-        fclose(file);
-    }
-    
-
+    FILE *temp = fopen("tempfile.txt", "w"); 
     while (fscanf(file, "%d %s %d", &user.id, user.name, &user.age) == 3) 
     {
         if (user.id==target) 
@@ -123,12 +116,6 @@ void delete_user()
     scanf("%d", &target);
 
     FILE *temp = fopen("tempfile.txt", "w");
-    if(temp==NULL)
-    {
-        printf("can't open temp file");
-        fclose(file);
-    }
-
     while (fscanf(file, "%d %s %d", &user.id, user.name, &user.age) == 3) 
     {
         if (user.id!=target) 
