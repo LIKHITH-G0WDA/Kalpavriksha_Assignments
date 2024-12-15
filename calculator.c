@@ -1,128 +1,93 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
 
-#define MAX 100
-
-int eval_exp(const char* exp, int* flag);
-int precedence(char operator);
-int calc_exp(int a, int b, char operator);
-
-int main() 
+int is_dig(char c)
 {
-    char exp[MAX];
-
-    printf("Enter a math expression: ");
-    fgets(exp, MAX, stdin);
-    exp[strcspn(exp, "\n")] = '\0';
-
-    int flag = 0;
-    int result = eval_exp(exp, &flag);
-
-    if (flag == 1) 
-    {
-        printf("Error: Division by zero.\n");
-    } 
-    else if (flag == 2) 
-    {
-        printf("Error: Invalid expresiion.\n");
-    } 
-    else 
-    {
-        printf("Result: %d\n", result);
-    }
-
-    return 0;
-}
-
-int eval_exp(const char* exp, int* flag) 
-{
-    int values[MAX];      
-    char operators[MAX];   
-    int top = -1;    
-    int op_top = -1;  
-
-    for (int i = 0; exp[i] != '\0'; i++) 
-    {
-        if (isspace(exp[i])) {
-            continue;
-        }
-        if (isdigit(exp[i])) 
-        {
-            int value = 0;
-            while (i < strlen(exp) && isdigit(exp[i])) 
-            {
-                value = value * 10 + (exp[i] - '0');
-                i++;
-            }
-            i--; 
-            values[++top] = value;
-        } 
-        else if (exp[i] == '+' || exp[i] == '-' || 
-                 exp[i] == '*' || exp[i] == '/') 
-                 {
-            while (op_top >= 0 && precedence(operators[op_top]) >= precedence(exp[i])) 
-            {
-                int b = values[top--];
-                int a = values[top--];
-                char op = operators[op_top--];
-
-                if (op == '/' && b == 0) 
-                {
-                    *flag = 1; 
-                    return 0;
-                }
-                values[++top] = calc_exp(a, b, op);
-            }
-            operators[++op_top] = exp[i];
-        } 
-      
-        else 
-        {
-            *flag = 2;
-            return 0;
-        }
-    }
-
-    while (op_top >= 0) 
-    {
-        int b = values[top--];
-        int a = values[top--];
-        char op = operators[op_top--];
-
-        if (op == '/' && b == 0) 
-        {
-            *flag = 1;
-            return 0;
-        }
-        values[++top] = calc_exp(a, b, op);
-    }
-
-    return values[top];
-}
-
-int precedence(char operator) 
-{
-    if (operator == '*' || operator == '/')
-    {
-        return 2;
-    }
-    if (operator == '+' || operator == '-') 
-    {
+    if(c>='0' && c<='9')
         return 1;
-    }
-    return 0;
+    else
+        return 0;
 }
 
-int calc_exp(int a, int b, char operator) 
+int calc_exp(int x, int y, char op)
 {
-    switch (operator)
+    switch(op)
     {
-        case '+': return a + b;
-        case '-': return a - b;
-        case '*': return a * b;
-        case '/': return a / b;
-        default: return 0; 
+        case '+': return x+y;
+        case '-': return x-y;
+        case '*': return x*y;
+        case '/': 
+        if(y!=0)
+            return x/y;
+        else
+        {
+            printf("Can't divide by zero");
+            exit(1);
+        }
     }
 }
+
+int evaluate_exp(char exp[])
+{
+    int numstack[100], top=0;
+    char opstack[100], e;
+    int optop=0;
+    int num=0, result;
+
+    for(int i=0;exp[i]!='\0';i++)
+    {
+        e=exp[i];
+        if (is_dig(e))
+        {
+            num=num*10+(e-'0');
+        }
+        else if(e=='+' || e=='-' || e=='*' || e=='/')
+        {
+            numstack[top++]=num;
+            opstack[optop++]=e;
+            num=0;
+        }
+        else
+        {
+            printf("Invalid symbol");
+            exit(1);
+        }
+    }
+    numstack[top++]=num;
+    for(int i=0;i<optop;i++)
+    {
+        if(opstack[i]=='*' || opstack[i]=='/')
+        {
+            numstack[i]=calc_exp(numstack[i],numstack[i+1],opstack[i]);
+            for(int j=i+1;j<top-1;j++)
+            {
+                numstack[j]=numstack[j+1];
+            }
+            for(int j=i;j<optop-1;j++)
+            {
+                opstack[j]=opstack[j+1];
+            }
+            top--;
+            optop--;
+            i--;
+        }
+    }
+    result=numstack[0];
+    for(int i=0;i<optop;i++)
+    {
+        result=calc_exp(numstack[i],numstack[i+1],opstack[i]);
+    }
+    
+    return result;
+}
+
+
+int main()
+{
+    char exp[100]; 
+    printf("Enter a math expression:");
+    gets(exp);
+    printf("Result: %d", evaluate_exp(exp));
+}
+
