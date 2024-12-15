@@ -10,16 +10,16 @@ int is_dig(char c)
         return 0;
 }
 
-int calc_exp(int x, int y, char op)
+int calc_exp(int num1, int num2, char operator)
 {
-    switch(op)
+    switch(operator)
     {
-        case '+': return x+y;
-        case '-': return x-y;
-        case '*': return x*y;
+        case '+': return num1+num2;
+        case '-': return num1-num2;
+        case '*': return num1*num2;
         case '/': 
-        if(y!=0)
-            return x/y;
+        if(num2!=0)
+            return num1/num2;
         else
         {
             printf("Can't divide by zero");
